@@ -1,0 +1,88 @@
+version: '3.9'
+
+# ─────────────────────────────────────────────────────────────
+# SwitchX Clone – Docker Compose
+# ─────────────────────────────────────────────────────────────
+# Usage:
+#   CPU only:   docker-compose up --build
+#   With GPU:   docker-compose --profile gpu up --build
+# ─────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Backend (Node.js + Python) ───────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: switchx-clone-backend:latest
+    container_name: switchx-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/outputs:/app/outputs
+      - ./backend/frames:/app/frames
+      - ./backend/models:/app/models
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - PYTHON_BIN=python3
+      - HF_HOME=/app/models/huggingface
+      - TRANSFORMERS_CACHE=/app/models/huggingface
+      - TORCH_HOME=/app/models/torch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - switchx-net
+
+  # ── Backend with GPU ─────────────────────────────────────────
+  backend-gpu:
+    extends:
+      service: backend
+    container_name: switchx-backend-gpu
+    profiles: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - PYTHON_BIN=python3
+      - HF_HOME=/app/models/huggingface
+      - TORCH_DEVICE=cuda
+
+  # ── Frontend (React + Nginx) ──────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_BACKEND_URL=http://localhost:3001
+    image: switchx-clone-frontend:latest
+    container_name: switchx-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - switchx-net
+
+networks:
+  switchx-net:
+    driver: bridge
+
+volumes:
+  models-cache:
+    driver: local
