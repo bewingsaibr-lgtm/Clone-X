@@ -1,0 +1,75 @@
+# ─── Node ────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+.pnp
+.pnp.js
+
+# ─── Build outputs ────────────────────────────────────────────
+frontend/dist/
+frontend/build/
+backend/dist/
+
+# ─── Environment ─────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+*.egg
+.pytest_cache/
+.mypy_cache/
+
+# ─── AI Models (large binary files) ──────────────────────────
+backend/models/huggingface/
+backend/models/torch/
+backend/models/*/
+!backend/models/.gitkeep
+# Keep model directories tracked but not contents
+backend/models/birefnet/
+backend/models/modnet/
+backend/models/iclight/
+backend/models/midas/
+
+# ─── Runtime data ─────────────────────────────────────────────
+backend/uploads/
+backend/outputs/
+backend/frames/
+!backend/uploads/.gitkeep
+!backend/outputs/.gitkeep
+!backend/frames/.gitkeep
+
+# ─── OS ──────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ─── Editor ──────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Docker ──────────────────────────────────────────────────
+.dockerignore
